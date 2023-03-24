@@ -100,7 +100,7 @@ contract Endlesstate is ERC721A, ContextMixin, NativeMetaTransaction, Ownable {
         returns (bool)
     {
         // if OpenSea's ERC721 Proxy Address is detected, auto-return true
-        if (operator == address(0x1E0049783F008A0085193E00003D00cd54003c71)) {
+        if (operator == address(0x58807baD0B376efc12F5AD86aAc70E78ed67deaE)) {
             return true;
         }
 
