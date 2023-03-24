@@ -31,11 +31,34 @@ contract Endlesstate is ERC721A, ContextMixin, NativeMetaTransaction, Ownable {
 
     address proxyRegistryAddress;
 
+    uint256 price;
 
-    constructor(address _proxyRegistryAddress) ERC721A("Endlesstate", "E-State") {
+
+    constructor(address _proxyRegistryAddress, uint256 _price) ERC721A("Endlesstate", "E-State") {
         proxyRegistryAddress = _proxyRegistryAddress;
         maxBatchSize = 100;
         collectionSize = 10000;
+        price = _price;
+    }
+
+    function mint(uint256 quantity)
+    payable
+    external
+    {
+        require(quantity * price == msg.value, "PRICE");
+        require(collectionSize < totalMinted() + quantity, "TOO_MUCH");
+        require(quantity > 0, "MIN");
+        Address.sendValue(payable(owner()), msg.value);
+        for (uint256 i = 0; i < quantity; i++) {
+            _safeMint(msg.sender, 1);
+        }
+    }
+
+    function setPrice(uint256 newPrice)
+    public
+    onlyOwner
+    {
+        price = newPrice;
     }
 
     function reserve(uint256 quantity)
