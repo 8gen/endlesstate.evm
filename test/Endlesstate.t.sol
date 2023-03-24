@@ -35,7 +35,7 @@ contract EndlessTest is Test {
         vm.stopPrank();
         deal(address(2), 1 ether);
         vm.startPrank(address(2));
-        vm.expectRevert();
+        vm.expectRevert("PRICE");
         endless.mint{value: 0.05 ether}(1);
         assertEq(endless.totalMinted(), 0);
     }
@@ -71,5 +71,23 @@ contract EndlessTest is Test {
         assertEq(endless.balanceOf(address(1)), 99);
         assertEq(endless.balanceOf(address(2)), 1);
         assertEq(endless.ownerOf(1), address(2));
+    }
+    function testTooMuch() public {
+        assertEq(endless.totalMinted(), 0);
+        assertEq(endless.numberMinted(address(1)), 0);
+        endless.reserve(100);
+        assertEq(endless.totalMinted(), 100);
+        assertEq(endless.numberMinted(address(1)), 100);
+
+        assertEq(endless.collectionSize(), 10000);
+        vm.store(address(endless), bytes32(uint256(12)), bytes32(uint256(100)));
+        assertEq(endless.collectionSize(), 100);
+
+        vm.expectRevert("TOO_MUCH");
+        endless.reserve(100);
+        vm.expectRevert("TOO_MUCH");
+        endless.mint{value:0.1 ether}(1);
+        assertEq(endless.totalMinted(), 100);
+        assertEq(endless.numberMinted(address(1)), 100);
     }
 }

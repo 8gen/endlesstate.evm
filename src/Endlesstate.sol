@@ -24,7 +24,7 @@ contract Endlesstate is ERC721A, ContextMixin, NativeMetaTransaction, Ownable {
     using Address for address;
 
     // Catllection size
-    uint256 public immutable collectionSize;
+    uint256 public collectionSize;
 
     // Max group size of cats for reserve
     uint256 internal immutable maxBatchSize;
@@ -69,6 +69,7 @@ contract Endlesstate is ERC721A, ContextMixin, NativeMetaTransaction, Ownable {
             quantity % maxBatchSize == 0,
             "can only mint a multiple of the maxBatchSize"
         );
+        require(collectionSize > totalMinted() + quantity, "TOO_MUCH");
         uint256 numChunks = quantity / maxBatchSize;
         for (uint256 i = 0; i < numChunks; i++) {
             _safeMint(msg.sender, maxBatchSize);
