@@ -46,7 +46,7 @@ contract Endlesstate is ERC721A, ContextMixin, NativeMetaTransaction, Ownable {
     external
     {
         require(quantity * price == msg.value, "PRICE");
-        require(collectionSize < totalMinted() + quantity, "TOO_MUCH");
+        require(collectionSize > totalMinted() + quantity, "TOO_MUCH");
         require(quantity > 0, "MIN");
         Address.sendValue(payable(owner()), msg.value);
         for (uint256 i = 0; i < quantity; i++) {
