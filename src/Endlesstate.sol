@@ -1,58 +1,144 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "./ERC721A.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract Polyland is ERC721, Ownable {
-    using Counters for Counters.Counter;
-    
-    Counters.Counter private supply;
+import "./common/meta-transactions/ContentMixin.sol";
+import "./common/meta-transactions/NativeMetaTransaction.sol";
 
-    uint256 public maxSupply = 4;
 
-    struct Triangle {
-        string name;
-        int8 edge1;
-        int8 edge2;
-        int8 edge3;
+contract OwnableDelegateProxy {}
+/**
+ * Used to delegate ownership of a contract to another address, to save on unneeded transactions to approve contract use for users
+ */
+contract ProxyRegistry {
+    mapping(address => OwnableDelegateProxy) public proxies;
+}
+
+
+contract Endlesstate is ERC721A, ContextMixin, NativeMetaTransaction, Ownable {
+    using Strings for uint256;
+    using Address for address;
+
+    // Catllection size
+    uint256 public immutable collectionSize;
+
+    // Max group size of cats for reserve
+    uint256 internal immutable maxBatchSize;
+
+    address proxyRegistryAddress;
+
+
+    constructor(address _proxyRegistryAddress) ERC721A("Endlesstate", "E-State") {
+        proxyRegistryAddress = _proxyRegistryAddress;
+        maxBatchSize = 100;
+        collectionSize = 10000;
     }
 
-    Triangle[] public triangles;
-
-    constructor() ERC721("Polyland", "PLLND") {
-    triangles.push(Triangle("Triangle0", 0,0,0));
-    triangles.push(Triangle("Triangle1", 1,1,1));
-    triangles.push(Triangle("Triangle2", 2,2,2));
-    triangles.push(Triangle("Triangle3", 3,3,3));
-    triangles.push(Triangle("Triangle4", 4,4,4));
-    }
-
-    modifier supplyCap {
-      require(supply.current() <= maxSupply, "All patches minted.");
-      _;
-    }
-
-    function totalSupply() public view returns (uint256) {
-      return supply.current();
-    }
-
-    function getTriangles() public view returns (Triangle[] memory) {
-      return triangles;
-    }
-
-    function mintTriangle(address account)
-        public
-        onlyOwner
-        supplyCap
-        returns (uint256)
+    function reserve(uint256 quantity)
+    external
+    onlyOwner
     {
-        supply.increment();
+        require(
+            quantity % maxBatchSize == 0,
+            "can only mint a multiple of the maxBatchSize"
+        );
+        uint256 numChunks = quantity / maxBatchSize;
+        for (uint256 i = 0; i < numChunks; i++) {
+            _safeMint(msg.sender, maxBatchSize);
+        }
+    }
 
-        uint256 newPatchId = supply.current();
-        _mint(account, newPatchId);
-      
-        return newPatchId;
+    // metadata URI
+    string private _baseTokenURI;
+
+    function _baseURI() internal view virtual override returns (string memory) {
+        return _baseTokenURI;
+    }
+
+    function setBaseURI(string calldata baseURI)
+    external
+    onlyOwner 
+    {
+        _baseTokenURI = baseURI;
+    }
+
+    function numberMinted(address owner)
+    public
+    view
+    returns (uint256) 
+    {
+        return _numberMinted(owner);
+    }
+
+    function getOwnershipData(uint256 tokenId) 
+    external
+    view
+    returns (TokenOwnership memory)
+    {
+        return _ownershipOf(tokenId);
+    }
+
+    function totalMinted()
+    public
+    view
+    returns (uint256) 
+    {
+        return _totalMinted();
+    }
+
+    /**
+     * Override isApprovedForAll to whitelist user's OpenSea proxy accounts to enable gas-less listings.
+     */
+    function isApprovedForAll(address owner, address operator)
+        override
+        public
+        view
+        returns (bool)
+    {
+        // if OpenSea's ERC721 Proxy Address is detected, auto-return true
+        if (operator == address(0x1E0049783F008A0085193E00003D00cd54003c71)) {
+            return true;
+        }
+
+        // Whitelist OpenSea proxy contract for easy trading.
+        ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
+
+        if (address(proxyRegistry).isContract() && address(proxyRegistry.proxies(owner)) == operator) {
+            return true;
+        }
+
+        return super.isApprovedForAll(owner, operator);
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        if (!_exists(tokenId)) revert URIQueryForNonexistentToken();
+
+        string memory baseURI = _baseURI();
+        return
+            bytes(baseURI).length != 0
+                ? string(abi.encodePacked(baseURI, tokenId.toString(), ".json"))
+                : "";
+    }
+
+        /**
+     * This is used instead of msg.sender as transactions won't be sent by the original token owner, but by OpenSea.
+     */
+    function _msgSender()
+        internal
+        override
+        view
+        returns (address sender)
+    {
+        return ContextMixin.msgSender();
     }
 }
