@@ -13,7 +13,7 @@ contract EndlesstateScript is Script {
             0x207Fa8Df3a17D96Ca7EA4f2893fcdCb78a304101,
             0.1 ether
         );
-        nft.setBaseURI("ipfs://QmerxUCBQdbeJxnJuVreHo6EAa15UwNK4vyAj76QRc6syg/");
+        nft.setBaseURI("ipfs://QmRPSubNW7AiKqEWQRHvdEq6m9qYFzddxEXSqMqS4AZJFj/");
         nft.reserve(1000);
         vm.stopBroadcast();
     }
