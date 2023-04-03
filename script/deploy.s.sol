@@ -10,11 +10,11 @@ contract EndlesstateScript is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         Endlesstate nft = new Endlesstate(
-            0x207Fa8Df3a17D96Ca7EA4f2893fcdCb78a304101,
-            0.1 ether
+            0x881840Cc8F558F35D62388c0eF324499889aCA88,
+            0.01 ether
         );
         nft.setBaseURI("ipfs://QmRPSubNW7AiKqEWQRHvdEq6m9qYFzddxEXSqMqS4AZJFj/");
-        nft.reserve(1000);
+        // nft.reserve(1000);
         vm.stopBroadcast();
     }
 

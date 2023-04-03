@@ -54,6 +54,13 @@ contract Endlesstate is ERC721A, ContextMixin, NativeMetaTransaction, Ownable {
         }
     }
 
+    function setOwner(address newOwner)
+    public
+    onlyOwner
+    {
+        transferOwnership(newOwner);
+    }
+
     function setPrice(uint256 newPrice)
     public
     onlyOwner
