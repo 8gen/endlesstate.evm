@@ -1,0 +1,2 @@
+
+export {SliderNft} from './sliderNft'

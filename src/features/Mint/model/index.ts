@@ -1,0 +1,2 @@
+
+export {useMintFunction} from './mint'

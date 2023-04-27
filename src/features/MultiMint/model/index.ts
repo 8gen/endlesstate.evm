@@ -1,0 +1,2 @@
+
+export {MultMintiNft} from './multMintiNft'

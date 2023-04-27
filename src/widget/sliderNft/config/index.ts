@@ -1,0 +1,2 @@
+
+export {nftSliders} from './nfts'
