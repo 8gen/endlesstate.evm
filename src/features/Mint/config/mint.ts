@@ -10,7 +10,7 @@ export interface Message {
     type:messageType,
 }
 
-export type returnMintFunction =  [Message, () => void];
+export type returnMintFunction =  [Message, () => void, number];
 
 export const defaultValue:Message = {
     text:'',

@@ -2,8 +2,8 @@ import {
     useAccount,
     useContract, useSigner,
 } from 'wagmi'
-import {parseEther} from "viem";
-import {useState} from "react";
+import {formatEther, parseEther} from "viem";
+import {useEffect, useState} from "react";
 import {useStore} from "effector-react";
 
 import nft from "shared/config/blockchain/contracts/nft.json";
@@ -14,6 +14,7 @@ import {$isOwner} from "../../../entities/User";
 
 export const useMintFunction = (): returnMintFunction => {
     const [message, setMessage] = useState<Message>(defaultValue)
+    const [countNft, setCounNft] = useState<number>(0)
     const {address} = useAccount();
     const { data: signer, } = useSigner();
     const isOwner = useStore($isOwner)
@@ -21,6 +22,14 @@ export const useMintFunction = (): returnMintFunction => {
         ...nft,
         signerOrProvider: signer,
     })
+
+    useEffect(() => {
+        const getCountNft = async () => {
+            setCounNft(+(await contract?.getTotalSupply()))
+        }
+
+        getCountNft();
+    }, [contract])
 
     const mintFunction = async () => {
         const priceNft = 0.005;
@@ -53,6 +62,6 @@ export const useMintFunction = (): returnMintFunction => {
         }
     }
 
-    return [message, mintFunction];
+    return [message, mintFunction, countNft];
 
 }

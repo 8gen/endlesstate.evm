@@ -28,9 +28,13 @@ contract Endlesstate is ERC721A, Ownable {
         require(_count > 0, "mint at least one token");
         require(_totalMinted() + _count <= maxSupply, "not enough tokens left");
         require(_count <= maxBatchSize, "MAX BATCH SIZE");
-        require(msg.value >= _count * PRICE || msg.sender == owner(), "PRICE");
+        require(msg.value == _count * PRICE || msg.sender == owner(), "PRICE");
 
         _mint(_to, _count);
+    }
+
+    function setBaseURI(string memory _baseURI) external onlyOwner {
+        baseURI = _baseURI;
     }
 
     function withdraw() public onlyOwner {

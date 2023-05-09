@@ -57,7 +57,7 @@ describe("Endlesstate", function () {
           endlesstate?.connect(otherAccount1).mint(COUNT, otherAccount1.address)
       ).to.be.revertedWith("PRICE");
 
-      await expect(
+      expect(
           await endlesstate?.tokenURI(1)
       ).to.equal("ipfs://QmSDTSsJiTvZ4fqJxyhAxVfMYpmtiw7danj54qgch9UeQk/1");
 
@@ -70,6 +70,16 @@ describe("Endlesstate", function () {
           balanceBefore
       ).not.to.equal(balanceAfter);
 
+
+      expect(
+        await endlesstate?.baseURI()
+      ).to.equal("ipfs://QmSDTSsJiTvZ4fqJxyhAxVfMYpmtiw7danj54qgch9UeQk/");
+
+      await endlesstate?.setBaseURI("1");
+
+      expect(
+        await endlesstate?.baseURI()
+      ).to.equal("1");
     });
   });
 });

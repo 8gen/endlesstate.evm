@@ -2,6 +2,55 @@
 import styled from 'styled-components';
 import {messageType} from "../config";
 
+export const BodyInfo = styled.div`
+  width: 800px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  @media (max-width: 810px) {
+    width: 500px;
+  }
+
+  @media (max-width: 520px) {
+    width: 400px;
+  }
+
+  @media (max-width: 410px) {
+    width: 300px;
+  }
+`
+
+export const BodyTextInfo = styled.div`
+  width: 47%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap:20px;
+
+  @media (max-width: 370px) {
+    gap:10px;
+  }
+`
+
+export const Text = styled.p`
+  color:#FFFF;
+  text-align: center;
+  font-size: 20px;
+
+  @media (max-width: 810px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 520px) {
+    font-size: 13px;
+  }
+
+  @media (max-width: 420px) {
+    font-size: 10.5px;
+  }
+`
+
 export const Button = styled.img
     .attrs((props: {isLast:boolean}) => props)`
   display: block;
